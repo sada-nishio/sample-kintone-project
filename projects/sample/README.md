@@ -1,16 +1,23 @@
 # Sample プロジェクト
 
+## 依存する npm ライブラリのインストール
+```shell
+$ npm install
+```
+
 ## Webpack の概要
 - webpack.config.js
   - Webpackの設定ファイル
-  - entry: 起点となるファイル
-  - output: 結合されたファイルの出力先
+  - entry: 起点となるファイル (./app1/js/desktop.js)
+  - output: 結合されたファイルの出力先 (./dist)
   - その他: CSS、画像のロードができるように設定
 
 - ビルド(ファイルの結合)の実行
-  - webpack.config.js が存在するディレクトリで下記のコマンドを実行
-  - $ npm run build
-  - output に指定されたディレクトリにバンドルファイルが出力される
+```shell
+$ npm run build
+```
+  - webpack.config.js が存在するディレクトリで上記のコマンドを実行
+  - output に指定されたディレクトリ(./dist)にバンドルファイルが出力される
 
 ## ESlint
 - .eslintrc.json

@@ -10,8 +10,8 @@ $ git clone https://github.com/sada-nishio/sample-kintone-project.git
 $ cd sample-kintone-project
 ```
 
-### ESLint, kintoneUtility, Webpack
+### ESLint, kintoneUtility, Webpack を試す
 [Sampleプロジェクト](https://github.com/sada-nishio/sample-kintone-project/tree/master/projects/sample)
 
-## Vagrant
+## Vagrant を試す
 [Vagrant サンプル](https://github.com/sada-nishio/sample-kintone-project/tree/master/vagrant)
