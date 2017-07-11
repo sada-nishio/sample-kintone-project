@@ -1,3 +1,4 @@
 dist/*.js
 node_modules
 webpack.config.js
+common/js/kintoneUtility.min.js
