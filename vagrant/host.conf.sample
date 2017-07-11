@@ -1,0 +1,23 @@
+<VirtualHost *:80>
+        <Directory _PATH_ROOT_>
+            AllowOverride All
+            Options +Indexes
+			Allow from all
+        </Directory>
+        DocumentRoot _PATH_ROOT_
+        ServerName _HOST_NAME_
+</VirtualHost>
+Listen 443
+NameVirtualHost *:443
+<VirtualHost *:443>
+        SSLEngine on
+        SSLCertificateFile _PATH_SSL_CERT_
+        SSLCertificateKeyFile _PATH_SSL_KEY_
+        <Directory _PATH_ROOT_>
+            AllowOverride All
+            Options +Indexes
+			Allow from all
+        </Directory>
+        DocumentRoot _PATH_ROOT_
+        ServerName _HOST_NAME_
+</VirtualHost>

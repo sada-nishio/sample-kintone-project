@@ -1,0 +1,99 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+##################
+# GLOBAL settings
+##################
+
+#Setting type of network
+# set NAT if you want connect to Vagrant with port forward (require set SCForwardedPortHTTPS)
+# set PUBLIC if you want connect Vagrant by your network ip (Bridged)
+# Default is NAT
+SCNetwork = "NAT"
+SCForwardedPortHTTPS = 10443
+
+SC_PATH = "/kintone-dev"
+Vagrant.configure("2") do |config|
+	## BOX
+	#config.vm.box = "centos/7"
+	config.vm.box = "bento/centos-7.2"
+	config.ssh.username = "root"
+	config.ssh.password = "vagrant"
+	# config.vm.box_check_update = false
+	config.vbguest.auto_update = false
+	## Network
+	# hostname
+	config.vm.hostname = "kintone.dev.example.local"
+	if SCNetwork === "PRIVATE"
+		config.vm.network "private_network", ip: "192.168.33.11"
+	elsif SCNetwork === "PUBLIC" # Brigde
+		config.vm.network "public_network"
+	else #default is NAT
+		# Forward
+		#config.vm.network "forwarded_port", guest: 80, host: 8080
+		config.vm.network "forwarded_port", guest: 443, host: SCForwardedPortHTTPS
+	end
+
+	config.vm.provider "virtualbox" do |v|
+		# speedup DNS network
+		# ref. http://serverfault.com/questions/495914/vagrant-slow-internet-connection-in-guests
+		v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+		v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+		v.customize ['modifyvm', :id, '--cableconnected1', 'on']
+	end
+
+	## VIRTUAL MACHINE NAME
+	#config.vm.provider "virtualbox" do |v|
+	#  v.name = "my_vm"
+	#end
+
+	## SYNC SC-repository
+	config.vm.synced_folder "./../", SC_PATH, type: "virtualbox"
+
+	## Provisioning
+	#disable firewall and selinux
+	config.vm.provision :shell, :inline => <<-SHELL
+		# stop security software
+		setenforce 0
+		sed -i -e '/SELINUX=/ c SELINUX=disabled' /etc/selinux/config
+		systemctl stop firewalld
+		systemctl disable firewalld
+	SHELL
+
+	#install service
+	config.vm.provision :shell, :path => "install_service.sh", :args => "httpd"
+	
+	# Start webservice
+	#if SCWebservice === "nodejs"
+	#	config.vm.provision :shell, :path => "http-server-nodejs-start.sh", :run => "always"
+	#else 
+		config.vm.provision :shell, :run => "always", :inline => <<-SHELL
+			#Restart service
+		    systemctl restart httpd
+
+		    echo -e "\nUpdating git submodule ...."
+			cd #{SC_PATH}
+			git submodule update --init
+
+			echo -e "\nStatus network:"
+			sleep 1
+			netstat -tnlp | grep -E "80|443"
+		SHELL
+	#end
+
+	#INFORM when completed
+	if SCNetwork === "PUBLIC"
+		config.vm.provision :shell, :run => "always", :inline =>  <<-EOF
+			echo "\n\nALMOST DONE!"
+			echo "Common URL: https://<your-vagrant-ip>/common/"
+			echo "Project URL: https://<your-vagrant-ip>/projects/"
+			echo Your vagrant IP: $(hostname -I)
+		EOF
+	else
+		config.vm.provision :shell, :run => "always", :inline =>  <<-EOF
+			echo "\n\nALMOST DONE!"
+			echo "Project URL: https://localhost:#{SCForwardedPortHTTPS}/projects/"
+		EOF
+	end
+	
+end
