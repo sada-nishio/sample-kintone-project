@@ -1,0 +1,12 @@
+{
+    "extends": "eslint-config-kintone",
+    "parserOptions": {
+        "sourceType": "module"
+    },
+    "globals": {
+        "kintoneUtility": true
+    },
+    "rules": {
+        "no-console": "off"
+    }
+}
